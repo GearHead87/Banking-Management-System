@@ -56,6 +56,8 @@ class User:
             transaction = Transaction(self.name, self.name, -amount)
             self.transaction_history.append(transaction)
             return True
+        elif amount > self.balance:
+            print("Bank is bankrupt. Unable to withdraw.")
         return False
 
     def transfer(self, recipient, amount):
