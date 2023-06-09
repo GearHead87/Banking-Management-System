@@ -42,24 +42,24 @@ class User:
             return True
         return False
 
-    def deposit(self, Bank, amount):
+    def deposit(self, bank, amount):
         if amount > 0:
             self.balance += amount
-            Bank.total_balance += amount
+            bank.total_balance += amount
             self.loan_limit = self.balance * 2
             transaction = Transaction(self.name, self.name, amount)
             self.transaction_history.append(transaction)
             return True
         return False
 
-    def withdraw(self,Bank, amount):
-        if amount > 0 and amount <= self.balance:
+    def withdraw(self, bank, amount):
+        if amount > 0 and amount <= self.balance and amount <= bank.total_balance:
             self.balance -= amount
-            Bank.total_balance -= amount
+            bank.total_balance -= amount
             transaction = Transaction(self.name, self.name, -amount)
             self.transaction_history.append(transaction)
             return True
-        elif amount > self.balance:
+        elif amount > bank.total_balance:
             print("Bank is bankrupt. Unable to withdraw.")
         return False
 
@@ -77,9 +77,10 @@ class User:
         return self.balance
 
     def take_loan(self, bank, amount):
-        if bank.loan_enabled and amount <= self.loan_limit and amount > 0:
+        if bank.loan_enabled and amount <= self.loan_limit and amount > 0 and amount <= bank.total_balance:
             self.balance += amount
             bank.total_loan_amount += amount
+            bank.total_balance -= amount
             transaction = Transaction(self.name, self.name, amount)
             self.transaction_history.append(transaction)
             bank.add_transaction(transaction)
@@ -127,15 +128,18 @@ user2 = adminmama.create_account('user2',5000)
 print(user1.check_balance())
 print(user2.check_balance())
 
-user1.withdraw(bank,1000)
-user1.transfer(user2,500)
 
 adminmama.enable_loan_feature()
 
-user1.take_loan(bank,2000)
-user1.deposit(bank,1000)
+user1.take_loan(bank,10000)
+print('after loan', user1.check_balance())
+user1.withdraw(bank, 15000)
+
+print(adminmama.get_total_balance())
 
 print(user1.check_balance())
+
+user1.transfer(user2,1000)
 
 print(adminmama.get_total_loan_amount())
 print(adminmama.get_total_balance())
